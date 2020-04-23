@@ -11,7 +11,7 @@ global.__basedir = __dirname;
 const dbConnector = require('./config/db')
 dbConnector().then(() => {
     const config = require('./config/config');
-    const cubeModel = require('./models/_cube');
+    //const cubeModel = require('./models/_cube');
     const app = require('express')();
     require('./config/express')(app);
     require('./config/routes')(app);

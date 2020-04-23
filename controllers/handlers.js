@@ -1,46 +1,36 @@
-//cubeModel = require('../models/_cube');
-const cubeModel = require('../models/cube');
-
-// function homeHandler(req, res, next) {
-//     cubeModel.getAll().then(cubes => res.render('index.hbs', {
-//         cubes
-//     })).catch(next);
-// };
-
+const models = require('../models');
 
 /**This version of handlebars dosn't like mongoose:) for this we must use mongoo method lean()
  * this method change mongoo object to js object
  */
-function homeHandler(req, res, next) {
-    cubeModel.find().lean().then(cubes =>{
-        res.render('index.hbs', {cubes});
-    }).catch(next);
+async function homeHandler(req, res, next) {
+    try {
+        const cubes = await models.cubeModel.find().lean();
+        res.render('index.hbs', {
+            cubes
+        });
+    } catch (error) {
+        next
+    }
 };
 
-// function filterHandler(req, res, next) {
-//     const {search,from,to} =req.body;
-//     cubeModel.getAll()
-//     .then(cubesAll=>{
-//         console.log(cubesAll)
-//         let cubes =  cubesAll.filter(
-//             x=>(!!search?x.name.toUpperCase()===search.toUpperCase():true)&&
-//             (!!from?x.difficultyLevel>=from:true)&&
-//             (!!to?x.difficultyLevel<=to:true));
-//         res.render('index.hbs',{cubes});
-//     })
-//     .catch(next);    
-// };
 function filterHandler(req, res, next) {
-    const {search,from,to} =req.body;
-    cubeModel.find().lean()
-    .then(cubesAll=>{
-        let cubes =  cubesAll.filter(
-            x=>(!!search?x.name.toUpperCase()===search.toUpperCase():true)&&
-            (!!from?x.difficultyLevel>=from:true)&&
-            (!!to?x.difficultyLevel<=to:true));
-        res.render('index.hbs',{cubes});
-    })
-    .catch(next);    
+    const {
+        search,
+        from,
+        to
+    } = req.body;
+    models.cubeModel.find().lean()
+        .then(cubesAll => {
+            let cubes = cubesAll.filter(
+                x => (!!search ? x.name.toUpperCase() === search.toUpperCase() : true) &&
+                (!!from ? x.difficultyLevel >= from : true) &&
+                (!!to ? x.difficultyLevel <= to : true));
+            res.render('index.hbs', {
+                cubes
+            });
+        })
+        .catch(next);
 };
 
 function createHandler(req, res) {
@@ -51,44 +41,40 @@ function aboutHandler(req, res) {
     res.render('about.hbs');
 };
 
-// function detailsHandler(req, res, next) {
-//     const id = req.params.id
-//     cubeModel.getOne(id)
-//         .then(cube => {
-//             if (!cube) {
-//                 res.redirect('/not-found');
-//                 return;
-//             }
-//             res.render('details.hbs', {
-//                 cube
-//             })
-//         })
-//         .catch(next);
-// };
+async function detailsHandler(req, res, next) {
+    try {
+        const id = req.params.id;
+        const cube = await models.cubeModel.findById(id).lean();
+        if (!cube) {
+            res.redirect('/not-found');
+            return;
+        }
 
-function detailsHandler(req, res, next) {
-    const id = req.params.id
-    cubeModel.findById(id).lean()
-        .then(cube => {
-            if (!cube) {
-                res.redirect('/not-found');
-                return;
+        const accessories = await models.accessoryModel.find({
+            '_id': {
+                $in: cube.accessories
             }
-            res.render('details.hbs', {
-                cube
-            })
-        })
-        .catch(next);
+        }).lean();
+
+        res.render('details.hbs', {
+            cube,
+            accessories
+        });
+
+    } catch (error) {
+        next
+    }
+
 };
 
-
-// function createHandlerPost(req, res, next) {
-//     const cube =req.body;
-//     cubeModel.insert(cube).then(res.redirect('/')).catch(next);
-// };
-function createHandlerPost(req, res, next) {
-    const cube =req.body;
-    cubeModel.create(cube).then(res.redirect('/')).catch(next);
+async function createHandlerPost(req, res, next) {
+    try {
+        const cube = req.body;
+        await models.cubeModel.create(cube);
+        res.redirect('/');
+    } catch (error) {
+        next
+    }
 };
 
 function notFoundHandler(req, res) {
@@ -104,4 +90,3 @@ module.exports = {
     createHandlerPost,
     notFoundHandler
 };
-

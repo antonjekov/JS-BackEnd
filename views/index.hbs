@@ -15,6 +15,7 @@
         <li><img class="logo" src="/images/logo.png"></li>
         <li><a href="/">Browse</a></li>
         <li><a href="/create">Add a Cube</a></li>
+        <li><a href="/create/accessory">Add accessory</a></li>
         <li><a href="/about">About</a></li>
       </ul>
     </header>
@@ -33,6 +34,8 @@
         <p class="name">{{name}}</p>
         <p><span>Difficulty level:</span>{{difficultyLevel}}</p>
         <a class="btn" href="/details/{{_id}}">Details</a>
+        <a class="btn" href="/attach/accessory/{{_id}}">Add Accessory</a>
+
       </div>
       {{/each}}
       
