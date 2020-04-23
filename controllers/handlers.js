@@ -14,23 +14,25 @@ async function homeHandler(req, res, next) {
     }
 };
 
-function filterHandler(req, res, next) {
-    const {
-        search,
-        from,
-        to
-    } = req.body;
-    models.cubeModel.find().lean()
-        .then(cubesAll => {
-            let cubes = cubesAll.filter(
-                x => (!!search ? x.name.toUpperCase() === search.toUpperCase() : true) &&
-                (!!from ? x.difficultyLevel >= from : true) &&
-                (!!to ? x.difficultyLevel <= to : true));
-            res.render('index.hbs', {
-                cubes
-            });
-        })
-        .catch(next);
+async function filterHandler(req, res, next) {
+    try {
+        const {
+            search,
+            from,
+            to
+        } = req.body;
+        const cubesAll = await models.cubeModel.find().lean();
+        const cubes = cubesAll.filter(
+            x => (!!search ? x.name.toUpperCase() === search.toUpperCase() : true) &&
+            (!!from ? x.difficultyLevel >= from : true) &&
+            (!!to ? x.difficultyLevel <= to : true));
+    
+        res.render('index.hbs', {
+            cubes
+        });
+    } catch (error) {
+        next
+    }
 };
 
 function createHandler(req, res) {
