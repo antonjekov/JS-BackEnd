@@ -14,6 +14,7 @@ module.exports = (app) => {
     app.engine('hbs', handlebars({
         extname: 'hbs',
         layoutsDir: path.resolve(__basedir, 'views/layouts'),
+        partialsDir: path.resolve(__basedir, 'views/partials'),
         defaultLayout: "index",
         views: path.resolve(__basedir, 'views')
     }));
