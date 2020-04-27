@@ -15,5 +15,11 @@ dbConnector().then(() => {
     const app = require('express')();
     require('./config/express')(app);
     require('./config/routes')(app);
+    //Global error handler
+    app.use(function (err, req, res, next) {
+        console.error(err);
+        res.render('500.hbs',{errorMessage:err.errorMessage})
+    })
+    
     app.listen(config.port, console.log(`Listening on port ${config.port}! Now its up to you...`));
 }).catch(console.error);

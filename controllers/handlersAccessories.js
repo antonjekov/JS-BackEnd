@@ -4,7 +4,8 @@ const models = require('../models');
  * this method change mongoo object to js object
  */
 function createAccessoryGetHandler(req, res) {
-    res.render('createAccessory.hbs');
+    const user = req.user;
+    res.render('createAccessory.hbs',{user});
 };
 
 async function createAccessoryPostHandler(req, res, next) {
@@ -31,10 +32,12 @@ async function attachAccessoryGetHandler(req, res, next) {
             }
         }).lean();
         let hasAccessories = !!accessories.length;
+        const user = req.user;
         res.render('attachAccessory.hbs', {
             cube,
             hasAccessories,
-            accessories
+            accessories,
+            user
         });
     } catch (error) {
         next

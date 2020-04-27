@@ -6,11 +6,13 @@ const models = require('../models');
 async function homeHandler(req, res, next) {
     try {
         const cubes = await models.cubeModel.find().lean();
+        const user = req.user;
         res.render('index.hbs', {
-            cubes
+            cubes,
+            user
         });
-    } catch (error) {
-        next
+    } catch (err) {
+        next(err)
     }
 };
 
@@ -26,9 +28,10 @@ async function filterHandler(req, res, next) {
             x => (!!search ? x.name.toUpperCase() === search.toUpperCase() : true) &&
             (!!from ? x.difficultyLevel >= from : true) &&
             (!!to ? x.difficultyLevel <= to : true));
-    
+        const user = req.user;
         res.render('index.hbs', {
-            cubes
+            cubes,
+            user
         });
     } catch (error) {
         next
@@ -36,11 +39,13 @@ async function filterHandler(req, res, next) {
 };
 
 function createHandler(req, res) {
-    res.render('create.hbs');
+    const user = req.user;
+    res.render('create.hbs', {user});
 };
 
 function aboutHandler(req, res) {
-    res.render('about.hbs');
+    const user = req.user;
+    res.render('about.hbs', {user});
 };
 
 async function detailsHandler(req, res, next) {
@@ -58,9 +63,11 @@ async function detailsHandler(req, res, next) {
             }
         }).lean();
 
+        const user = req.user;
         res.render('details.hbs', {
             cube,
-            accessories
+            accessories,
+            user
         });
 
     } catch (error) {
@@ -80,7 +87,8 @@ async function createHandlerPost(req, res, next) {
 };
 
 function notFoundHandler(req, res) {
-    res.render('404.hbs');
+    const user = req.user;
+    res.render('404.hbs', {user});
 };
 
 module.exports = {
