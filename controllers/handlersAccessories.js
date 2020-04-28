@@ -60,8 +60,8 @@ async function attachAccessoryPostHandler(req, res, next) {
         });
         res.redirect('/');
 
-    } catch (error) {
-        next
+    } catch (err) {
+        next(err)
     }
 };
 

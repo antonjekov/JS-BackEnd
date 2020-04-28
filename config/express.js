@@ -7,7 +7,7 @@ const cookieParser = require('cookie-parser')
 
 /**@__basedir comes from index.js where we put it like global const. Actualy this is __dirname the directory of our project
  * Because the path to directory is different in different operation sistems is better we to resolve the path with module path with method path.resolve()
-*/
+ */
 
 module.exports = (app) => {
 
@@ -18,7 +18,18 @@ module.exports = (app) => {
         layoutsDir: path.resolve(__basedir, 'views/layouts'),
         partialsDir: path.resolve(__basedir, 'views/partials'),
         defaultLayout: "index",
-        views: path.resolve(__basedir, 'views')
+        views: path.resolve(__basedir, 'views'),
+        helpers: {
+            select: function (value, options) {
+                return options.fn(this)
+                    .split('\n')
+                    .map(function (v) {
+                        var t = 'value="' + value + '"'
+                        return !RegExp(t).test(v) ? v : v.replace(t, t + ' selected="selected"')
+                    })
+                    .join('\n')
+            }
+        }
     }));
 
     //Setup the body parser
@@ -30,6 +41,4 @@ module.exports = (app) => {
 
     //Setup the static files
     app.use(express.static(path.resolve(__basedir, 'static')));
-
-    
 };

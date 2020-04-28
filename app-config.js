@@ -1,7 +1,7 @@
 const authCookieName = 'auth_cookie';
 const bcryptSaltRounds = 10;
 const jwtOptions = {
-    expiresIn: '10m'
+    expiresIn: '59m'
 };
 const jwtSecret = 'MySuperPrivateSecret';
 

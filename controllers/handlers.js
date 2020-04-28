@@ -40,18 +40,23 @@ async function filterHandler(req, res, next) {
 
 function createHandler(req, res) {
     const user = req.user;
-    res.render('create.hbs', {user});
+    res.render('create.hbs', {
+        user
+    });
 };
 
 function aboutHandler(req, res) {
     const user = req.user;
-    res.render('about.hbs', {user});
+    res.render('about.hbs', {
+        user
+    });
 };
 
-async function detailsHandler(req, res, next) {
+async function detailsHandler(req, res) {
     try {
         const id = req.params.id;
         const cube = await models.cubeModel.findById(id).lean();
+
         if (!cube) {
             res.redirect('/not-found');
             return;
@@ -64,32 +69,84 @@ async function detailsHandler(req, res, next) {
         }).lean();
 
         const user = req.user;
+
+        const isCreator = user ? user._id.toString() === cube.creatorId : false;
         res.render('details.hbs', {
             cube,
             accessories,
-            user
+            user,
+            isCreator
         });
 
-    } catch (error) {
-        next
+    } catch (err) {
+        next(err);
     }
-
 };
 
 async function createHandlerPost(req, res, next) {
     try {
         const cube = req.body;
+        cube.creatorId = req.user._id.toString();
         await models.cubeModel.create(cube);
         res.redirect('/');
-    } catch (error) {
-        next
+        next();
+    } catch (err) {
+        next(err)
     }
 };
 
 function notFoundHandler(req, res) {
     const user = req.user;
-    res.render('404.hbs', {user});
+    res.render('404.hbs', {
+        user
+    });
 };
+
+async function editGetHandler(req, res) {
+    const cubeId = req.params.id;
+    const user = req.user;
+    const cube = await models.cubeModel.findById(cubeId).lean();
+    res.render('edit.hbs', {
+        cube,
+        user
+    });
+};
+
+async function editPostHandler(req, res, next) {
+    try {
+        const cubeId = req.params.id;
+        const cube = req.body;
+        await models.cubeModel.findByIdAndUpdate(cubeId, {
+            ...cube
+        });
+        res.redirect('/');
+
+    } catch (err) {
+        next(err)
+    }
+
+};
+
+async function deleteGetHandler(req, res) {
+    const cubeId = req.params.id;
+    const user = req.user;
+    const cube = await models.cubeModel.findById(cubeId).lean();
+    res.render('delete.hbs', {
+        cube,
+        user
+    });
+};
+
+async function deletePostHandler(req, res, next) {
+    try {
+        const cubeId = req.params.id;
+        await models.cubeModel.findByIdAndDelete(cubeId);
+        res.redirect('/');
+    } catch (err) {
+        next(err);
+    }
+};
+
 
 module.exports = {
     homeHandler,
@@ -98,5 +155,9 @@ module.exports = {
     aboutHandler,
     detailsHandler,
     createHandlerPost,
-    notFoundHandler
+    notFoundHandler,
+    editGetHandler,
+    deleteGetHandler,
+    deletePostHandler,
+    editPostHandler
 };
